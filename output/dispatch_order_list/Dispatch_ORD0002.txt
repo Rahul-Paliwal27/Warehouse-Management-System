@@ -1,0 +1,11 @@
+=====DISPATCH SLIP=====
+
+ORDER ID          : ORD0002
+WAREHOUSE ID      : WH005
+CITY              : Bengaluru
+
+ITEMS:
+-mouse : 1
+order_date        :2026-07-04
+delivery_date     :2026-07-04
+====================

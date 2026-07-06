@@ -6,6 +6,7 @@ CITY              : Bengaluru
 
 ITEMS:
 -laptop : 1
-order_date        :2026-07-04
-delivery_date     :2026-07-04
+-mouse : 1
+order_date        :2026-07-06
+delivery_date     :2026-07-06
 ====================

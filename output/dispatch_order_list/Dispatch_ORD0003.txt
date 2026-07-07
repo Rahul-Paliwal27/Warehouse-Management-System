@@ -1,0 +1,12 @@
+=====DISPATCH SLIP=====
+
+ORDER ID          : ORD0003
+WAREHOUSE ID      : WH005
+CITY              : Bengaluru
+
+ITEMS:
+-sanitizer : 1
+-backpack : 1
+order_date        :2026-07-07
+delivery_date     :2026-07-07
+====================

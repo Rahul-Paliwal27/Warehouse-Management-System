@@ -290,7 +290,7 @@ def order_status(orders_path):
     else:
         current_status=order.iloc[0]["status"]
     print("===STATUS MENU===")
-    status_map={"1":"Picking","2":"Packing","3":"Dispatching","4":"delivered"}
+    status_map={"1":"Picking","2":"Packing","3":"Dispatching","4":"Delivered"}
     for key,values in status_map.items():
         print(key,values)
     choice=input("enter the choice: ")
@@ -299,13 +299,51 @@ def order_status(orders_path):
     orders_df.to_excel(orders_path,index=False)
     print("status updated sucessfully")
 
+
+
+
+def warehouse_dashboard(orders_path):
+    orders_df=pd.read_excel(orders_path)
+    total_orders=orders_df['order_id'].nunique()
+    unique_orders=orders_df.drop_duplicates(subset="order_id")
+    status_count=unique_orders["status"].value_counts()
+
+    allocated=status_count.get("allocated",0)
+    picking=status_count.get("Picking",0)
+    packed = status_count.get("Packed",0)
+    dispatched = status_count.get("Dispatched",0)
+    delivered = status_count.get("Delivered",0)
+    
+    print("="*10)
+    print("WAREHOUSE DASHBOARD")
+    print("="*10)
+    print(f"Total Orders : {total_orders}")
+    print(f"Allocated    : {allocated}")
+    print(f"Picking      : {picking}")
+    print(f"Packed       : {packed}")
+    print(f"Dispatched   : {dispatched}")
+    print(f"Delivered    : {delivered}")
+
+    item_summary=orders_df.groupby("item")['quantity'].sum()
+    most_ordered_item=item_summary.idxmax()
+    most_ordered_qty=item_summary.max()
+    print(f"most ordered item: {most_ordered_item}(qty: {most_ordered_qty})")
+    warehouse_summary=orders_df.groupby('warehouse_id')["quantity"].sum()
+    most_busy_warehouse=warehouse_summary.idxmax()
+    print(f"most active warehouse: {most_busy_warehouse}")
+    return
+
+
+
+
 def main_menu():
     while True:
         print("\n========= MY SMART WAREHOUSE ========= ")
         print("1.Place order")
         print("2.View order")
         print("3.Update status")
-        print("4.exit\n")
+        print("4.warehouse dashboard")
+        print("other for exit\n")
         choice=int(input("Enter the choice: "))
         if choice==1:
             place_order()
@@ -313,6 +351,8 @@ def main_menu():
             view_order(orders_path)
         elif choice==3:
             order_status(orders_path)
+        elif choice==4:
+            warehouse_dashboard(orders_path)
         else:
             return "Thank you for exit"
 

@@ -28,19 +28,12 @@ def place_order():
     print(customer_location)
 
     # now reading the warehouse loctaions and the inv from the excel 
-    # BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-    # warehouse_file=os.path.join(BASE_DIR,"data","LOCATION-WARE.xlsx")
-    
-    # loc_df=pd.read_excel(warehouse_file,sheet_name="warehouse_loc")
-    # inv_df=pd.read_excel(warehouse_file,sheet_name="warehouse_inv")
 
     cursor.execute("""SELECT * FROM warehouse""")
     warehouse_data=cursor.fetchall()#its a list of tuple
 
-    # cursor.execute("""SELECT *FROM INVENTORY""")
-    # warehouse_inv=cursor.fetchall()
 
-    # taking the order from the cutomer waht he needs and appending it to the custome_order 
+    # taking the order from the cutomer what he needs and appending it to the custome_order 
     def get_customer_order():
         customer_order = {
         "item":[],"quantity":[]
@@ -215,16 +208,6 @@ def place_order():
             return 3
         
 
-    # def order_status(order_id,new_status):
-    #     if order_id not in orders_df["order_id"].values:
-    #         print("order not found")
-    #         return
-    #     cursor.execute("""UPDATE orders SET status=? WHERE order_id=?""",(new_status,order_id))
-    #     orders_df= pd.read_excel(orders_path)
-    #     print(f"{order_id} updates to {new_status}")
-
-
-
 
     # main program 
     order_id= generate_order_id()
@@ -237,14 +220,7 @@ def place_order():
 
     warehouse_id=selected_warehouse['id']
     
-
-    # BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-    # folder=os.path.join(BASE_DIR,"output","dispatch_order_list")
     os.makedirs(folder, exist_ok=True)
-    # "C:\Users\HP\Downloads\order_data.xlsx"
-
-    # BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-    # orders_path=os.path.join(BASE_DIR,"output","order_data.xlsx")
     distance = selected_warehouse['distances']
     days = delivery_ETA(distance)
 
@@ -279,6 +255,8 @@ def view_order():
             items= cursor.fetchall()
             for item in items:
                 print(f"{item['item']} * {item['quantity']}")      
+
+
 
 def order_status():
     order_id=input("Enter Order ID: ").upper()
@@ -345,7 +323,35 @@ def warehouse_dashboard():
     print(f"most active warehouse: {result['warehouse_id']}")
     return
 
+def restock_warehouse():
+    warehouse_id=input("Enter the warehouse_id: ")
+    item=input("Enter the item name: ")
+    new_stock=int(input("Enter the stock: "))
+    cursor.execute("""SELECT stock FROM inventory WHERE warehouse_id=? AND item_name=?""",(warehouse_id,item))
+    old_stock=cursor.fetchone()
+    if old_stock is None:
+        print("item not in the warehouse ")
+        return
+    updated_stock=new_stock + old_stock['stock']
+    cursor.execute(""" UPDATE inventory SET stock=?  WHERE warehouse_id=? AND lower(item_name)=? """,(updated_stock,warehouse_id,item.lower()))
+    conn.commit()
+    print("restock sucessfull")
+    return
 
+def low_stock():
+    threshold=int(input("Enter the threshold: "))
+    cursor.execute("""SELECT warehouse_id, item_name, stock FROM inventory WHERE stock < ?""",(threshold,))
+    result=cursor.fetchall()
+    if not result:
+        print("No low stock items found.")
+        return
+    print(f"{'='*10} LOW STOCK {'='*10}  ")
+    print(f"{'Warehouse':<12}{'Item':<25}{'Stock'}")
+    print("-"*30)
+    for row in result:
+        print(f"{row['warehouse_id']:<12}{row['item_name']:<25}{row['stock']}")
+    print("="*31)
+        
 
 
 def main_menu():
@@ -355,6 +361,8 @@ def main_menu():
         print("2.View order")
         print("3.Update status")
         print("4.warehouse dashboard")
+        print("5.Restock inventory")
+        print("6.low stock report")
         print("other for exit\n")
         choice=int(input("Enter the choice: "))
         if choice==1:
@@ -365,6 +373,10 @@ def main_menu():
             order_status()
         elif choice==4:
             warehouse_dashboard()
+        elif choice==5:
+            restock_warehouse()
+        elif choice==6:
+            low_stock()
         else:
             return "Thank you for exit"
 
